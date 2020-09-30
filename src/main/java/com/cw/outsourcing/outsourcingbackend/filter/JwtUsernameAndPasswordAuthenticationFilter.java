@@ -1,6 +1,7 @@
 package com.cw.outsourcing.outsourcingbackend.filter;
 
 import com.cw.outsourcing.outsourcingbackend.config.JwtConfig;
+import com.cw.outsourcing.outsourcingbackend.constant.ResponseBodyCodeMessageEnum;
 import com.cw.outsourcing.outsourcingbackend.pojo.vo.LoginVO;
 import com.cw.outsourcing.outsourcingbackend.pojo.vo.ResponseBodyVO;
 import com.cw.outsourcing.outsourcingbackend.util.RedisUtil;
@@ -73,19 +74,33 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
         response.addHeader(jwtConfig.getAuthorizationHeader(), jwtConfig.getTokenPrefix() + token);
         response.addHeader(HttpHeaders.CONTENT_TYPE, "application/json");
         response.setCharacterEncoding("utf-8");
-        response.getWriter().write(objectMapper.writeValueAsString(ResponseBodyVO.<String>builder().code("00000").message("成功").build()));
+        response.getWriter().write(objectMapper.writeValueAsString(
+                ResponseBodyVO.<String>builder()
+                .code(ResponseBodyCodeMessageEnum.SUCCESS.getCode())
+                .message(ResponseBodyCodeMessageEnum.SUCCESS.getMessage())
+                .build())
+        );
     }
 
     @Override
-    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+                                              AuthenticationException failed) throws IOException, ServletException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.addHeader(HttpHeaders.CONTENT_TYPE, "application/json");
         response.setCharacterEncoding("utf-8");
         if (failed instanceof BadCredentialsException) {
-            response.getWriter().write(objectMapper.writeValueAsString(ResponseBodyVO.<String>builder().code("A0210").message("用户密码错误").build()));
+            response.getWriter().write(objectMapper.writeValueAsString(ResponseBodyVO.<String>builder()
+                    .code(ResponseBodyCodeMessageEnum.LOGIN_BAD_PASSWORD.getCode())
+                    .message(ResponseBodyCodeMessageEnum.LOGIN_BAD_PASSWORD.getMessage())
+                    .build())
+            );
         }
         if (failed instanceof DisabledException) {
-            response.getWriter().write(objectMapper.writeValueAsString(ResponseBodyVO.<String>builder().code("A0202").message("用户账户被冻结").build()));
+            response.getWriter().write(objectMapper.writeValueAsString(ResponseBodyVO.<String>builder()
+                    .code(ResponseBodyCodeMessageEnum.LOGIN_DISABLED.getCode())
+                    .message(ResponseBodyCodeMessageEnum.LOGIN_DISABLED.getMessage())
+                    .build())
+            );
         }
     }
 
