@@ -8,6 +8,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -79,7 +81,12 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.addHeader(HttpHeaders.CONTENT_TYPE, "application/json");
         response.setCharacterEncoding("utf-8");
-        response.getWriter().write(objectMapper.writeValueAsString(ResponseBodyVO.<String>builder().code("A0200").message("用户登录异常").build()));
+        if (failed instanceof BadCredentialsException) {
+            response.getWriter().write(objectMapper.writeValueAsString(ResponseBodyVO.<String>builder().code("A0210").message("用户密码错误").build()));
+        }
+        if (failed instanceof DisabledException) {
+            response.getWriter().write(objectMapper.writeValueAsString(ResponseBodyVO.<String>builder().code("A0202").message("用户账户被冻结").build()));
+        }
     }
 
 
