@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -24,7 +25,7 @@ public class MyUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
         Optional<UserEntity> userEntityOptional = userRepository.findByUserName(userName);
         if (!userEntityOptional.isPresent()) {
-            throw new UsernameNotFoundException("user not found");
+            throw new UsernameNotFoundException(MessageFormat.format("用户不存在，用户名：{0}", userName));
         }
         UserEntity userEntity = userEntityOptional.get();
         return new User(userEntity.getUserName(), userEntity.getPassword(),
